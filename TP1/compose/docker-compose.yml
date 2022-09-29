@@ -1,0 +1,138 @@
+version: "3.8"
+
+networks:
+  tp.cloud:
+    ipam:
+      config:
+        - subnet: 172.22.10.0/24
+
+services:
+
+  nginx:
+    image: nginx:latest
+    networks:
+      tp.cloud:
+        aliases:
+          - web.tp.cloud
+        ipv4_address: 172.22.10.20
+    ports:
+      - "80:80"
+    volumes:
+      # or short syntax: "./Config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro"
+      - type: bind
+        source: ./Config/nginx/nginx.conf
+        target: /etc/nginx/nginx.conf
+        read_only: true
+    depends_on:
+      - myadmin
+      - wordpress1
+      - wordpress2
+    restart: unless-stopped
+    
+  basededonnees:
+    image: mysql:8
+    networks:
+      tp.cloud:
+        aliases:
+          - mysql.tp.cloud
+          - base.tp.cloud
+          - bdd.tp.cloud
+    volumes:
+      # or short syntax...
+      - type: bind
+        source: ./Data/mysql/
+        target: /var/lib/mysql/
+    environment:
+      MYSQL_ROOT_PASSWORD: ppaasswwoorrdd
+      MYSQL_USER: wp_user
+      MYSQL_PASSWORD: wp_pass
+      MYSQL_DATABASE: wp_base
+    restart: unless-stopped
+    healthcheck:
+      test: "mysql -uwp_user -pwp_pass"
+      interval: 2s
+      timeout: 6s
+      retries: 40
+      start_period: 15s
+    
+  myadmin:
+    image: phpmyadmin/phpmyadmin
+    networks:
+      tp.cloud:
+        aliases:
+          - phpmyadmin.tp.cloud
+          - pma.tp.cloud
+    environment:
+      PMA_HOST: bdd.tp.cloud
+      PMA_ABSOLUTE_URI: http://192.168.246.47/madm/
+    depends_on:
+      - basededonnees
+    restart: unless-stopped
+    
+  wordpress1:
+    build:
+      context: ./Build/wordpress/
+    networks:
+      tp.cloud:
+        aliases:
+          - wordpress1.tp.cloud
+          - wp1.tp.cloud
+    volumes:
+      # or short syntax (yml array notation): - "<SRC>:<TARG>:ro" 
+      - type: bind
+        source: ./Data/php/
+        target: /var/www/html/
+    environment:
+      # using object syntax (or array syntax "- <VAR>=<VALUE>")
+      WORDPRESS_DB_HOST: mysql.tp.cloud
+      WORDPRESS_DB_USER: wp_user
+      WORDPRESS_DB_PASSWORD: wp_pass
+      WORDPRESS_DB_NAME: wp_base
+    depends_on:
+      - basededonnees
+    restart: unless-stopped
+    
+  wordpress_install:
+    image: wordpress:cli
+    networks:
+      - tp.cloud
+    volumes_from:
+      - wordpress1
+    environment:
+      # using object syntax (or array syntax "- <VAR>=<VALUE>")
+      WORDPRESS_DB_HOST: mysql.tp.cloud
+      WORDPRESS_DB_USER: wp_user
+      WORDPRESS_DB_PASSWORD: wp_pass
+      WORDPRESS_DB_NAME: wp_base
+    depends_on:
+      wordpress1:
+        condition: service_healthy
+      basededonnees:
+        condition: service_healthy
+    restart: "no"
+    tty: true
+    stdin_open: true
+    command: wp core install --url=http://192.168.246.47/ --title="Mon Site Wordpress" --admin_user=monadm --admin_password=monpass --admin_email=monmail@tp.cloud --skip-email
+
+  wordpress2:
+    build:
+      context: ./Build/wordpress/
+    depends_on:
+      - wordpress1
+    volumes:
+      # or short syntax (yml array notation): - "<SRC>:<TARG>:ro" 
+      - type: bind
+        source: ./Data/php/
+        target: /var/www/html/
+    networks:
+      tp.cloud:
+        aliases:
+          - wordpress2.tp.cloud
+          - wp2.tp.cloud
+    environment:
+      # using object syntax (or array syntax "- <VAR>=<VALUE>")
+      WORDPRESS_DB_HOST: mysql.tp.cloud
+      WORDPRESS_DB_USER: wp_user
+      WORDPRESS_DB_PASSWORD: wp_pass
+      WORDPRESS_DB_NAME: wp_base
+    restart: unless-stopped
