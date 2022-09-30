@@ -23,10 +23,17 @@ services:
         source: ./Config/nginx/nginx.conf
         target: /etc/nginx/nginx.conf
         read_only: true
+      - type: bind
+        source: ./Data/certbot/fullchain.pem
+        target: /etc/nginx/certif.crt
+      - type: bind
+        source: ./Data/certbot/privkey.pem
+        target: /etc/nginx/clef.key
     depends_on:
       - myadmin
       - wordpress1
       - wordpress2
+      - certbot
     restart: unless-stopped
     
   basededonnees:
@@ -136,3 +143,26 @@ services:
       WORDPRESS_DB_PASSWORD: wp_pass
       WORDPRESS_DB_NAME: wp_base
     restart: unless-stopped
+
+  certbot:
+    build:
+      context: ./Build/certbot/
+    networks:
+      - tp.cloud
+    volumes:
+      # or short syntax (yml array notation): - "<SRC>:<TARG>:ro" 
+      - type: bind
+        source: ./Data/certbot/fullchain.pem
+        target: /etc/letsencrypt/live/domain.com/fullchain.pem
+      - type: bind
+        source: ./Data/certbot/privkey.pem
+        target: /etc/letsencrypt/live/domain.com/privkey.pem
+    environment:
+      # using object syntax (or array syntax "- <VAR>=<VALUE>")
+      CERTBOT_NAME: grognon
+      CERTBOT_DOMAIN: cloudtiw.os.univ-lyon1.fr
+      CERTBOT_MAIL: eldar.kasmamytov@etu.univ-lyon1.fr
+      CERTBOT_IP: 192.168.246.47
+    restart: "no"
+    tty: true
+    stdin_open: true
