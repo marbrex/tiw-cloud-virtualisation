@@ -1,0 +1,39 @@
+#!/bin/bash
+DUCK=0
+openstack token issue 2>&1 > /dev/null
+if [ $? -ne 0 ];then
+        echo "Cannot request a token to openstack. source your RC file first"
+        exit 1
+fi
+
+ZONE=$(openstack zone list -f value -c name)
+DOMAIN=$(echo $CERTBOT_DOMAIN. | sed "s/.$ZONE//")
+CHECK=$(openstack recordset list -f value -c id $ZONE --name _acme-challenge.$DOMAIN.$ZONE)
+if [[ ! -z "$CHECK" ]]; then
+	openstack recordset delete $ZONE $CHECK
+	DELETED=$(openstack recordset show $ZONE $CHECK 2>&1)
+	while [[ "$DELETED" != "Could not find RecordSet" ]]
+	do
+		sleep 3
+		DELETED=$(openstack recordset show $ZONE $CHECK)
+		((DUCK=DUCK+1))
+		if [[ $DUCK -eq 10 ]];then
+			echo "A problem occured while deleting record"
+			break
+		fi
+	done
+fi
+
+DUCK=0
+RECORD=$(openstack recordset create $ZONE --type TXT -f value -c id --record $CERTBOT_VALIDATION _acme-challenge.$DOMAIN)
+STATUS=$(openstack recordset show -f value -c status $ZONE $RECORD)
+while [[ "$STATUS" != "ACTIVE" ]]
+do
+        sleep 3
+        STATUS=$(openstack recordset show -f value -c status $ZONE $RECORD)
+	((DUCK=DUCK+1))
+	if [[ $DUCK -eq 10 ]];then
+		echo "A problem occured during while creating record"
+		break
+	fi
+done

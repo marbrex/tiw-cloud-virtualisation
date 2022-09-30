@@ -37,23 +37,21 @@ then
     # A REMPLIR, il faut demander le nom DNS et générer le certificat
 
     # ========== Source OPENRC ==========
-    source ~/openrc.sh
-    
+    source /usr/local/bin/openrc.sh
+
     # ========== Generate Token ==========
-    openstack token issue -f value -c expires
-    
-    # ========== Get designate script ==========
-    wget https://documentation.univ-lyon1.fr/downloads/letsencrypt-designate
-    chmod a+x $(pwd)/letsencrypt-designate
+    # openstack token issue -f value -c expires
+
+    # ========== Create DNS record =======
+    openstack recordset create $CERTBOT_DOMAIN. --type A $CERTBOT_NAME --records $CERTBOT_IP
 
     # ========== Generate SSL/TLS Cert ==========
     certbot certonly \
-    --server https://acme-staging-v02.api.letsencrypt.org/directory \
     -n -manual-public-ip-logging-ok \
     --manual \
     --preferred-challenges=dns \
     --agree-tos \
-    --manual-auth-hook $(pwd)/letsencrypt-designate \
+    --manual-auth-hook /usr/local/bin/letsencrypt-designate \
     -m $CERTBOT_MAIL \
     -d $FQDN
 

@@ -34,23 +34,27 @@ RUN apt-get update && apt-get -y install certbot && apt-get clean
 # ------------------------------------------------------------------------------
 
 # ========== Install Certbot ==========
-RUN sudo snap install core
-RUN sudo snap refresh core
-
-RUN sudo snap install --classic certbot
-RUN sudo ln -s /snap/bin/certbot /usr/bin/certbot
+RUN apt update
+RUN apt install -y certbot
 
 # ========== Install Openstack CLI ==========
-RUN sudo apt -y install python3-openstackclient python3-designateclient python3-osc-placement
+RUN apt -y install python3-openstackclient python3-designateclient python3-osc-placement
 
 # ========== Importer le fichier OPENRC ==========
 # issue de la craetion d'un compte applicatif sur Openstack
-COPY openrc.sh ~/openrc.sh
-RUN chmod a+x ~/openrc.sh
+COPY openrc.sh /usr/local/bin/openrc.sh
+RUN chmod a+x /usr/local/bin/openrc.sh
 
 # ========== Importer le script de conf ==========
-COPY script-docker.sh ~/script-docker.sh
-RUN chmod a+x ~/script-docker.sh
+COPY script-docker.sh /usr/local/bin/script-docker.sh
+RUN chmod a+x /usr/local/bin/script-docker.sh
+
+# ========== Importer le script designate ==========
+COPY letsencrypt-designate /usr/local/bin/letsencrypt-designate
+RUN chmod a+x /usr/local/bin/letsencrypt-designate
+
+#HEALTHCHECK --interval=1s --timeout=3s --retries=60 --start-period=5s \
+#  CMD "test -f /etc/letsencrypt/live/grognon.cloudtiw.os.univ-lyon1.fr/fullchain.pem && test -f /etc/letsencrypt/live/grognon.cloudtiw.os.univ-lyon1.fr/privkey.pem"
 
 # Executer le script
-CMD ~/script-docker.sh
+CMD /usr/local/bin/script-docker.sh

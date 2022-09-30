@@ -17,6 +17,7 @@ services:
         ipv4_address: 172.22.10.20
     ports:
       - "80:80"
+      - "443:443"
     volumes:
       # or short syntax: "./Config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro"
       - type: bind
@@ -24,16 +25,17 @@ services:
         target: /etc/nginx/nginx.conf
         read_only: true
       - type: bind
-        source: ./Data/certbot/fullchain.pem
-        target: /etc/nginx/certif.crt
-      - type: bind
-        source: ./Data/certbot/privkey.pem
-        target: /etc/nginx/clef.key
+        source: ./Data/certbot/
+        target: /etc/nginx/certbot/
     depends_on:
-      - myadmin
-      - wordpress1
-      - wordpress2
-      - certbot
+      certbot:
+        condition: service_completed_successfully
+      myadmin:
+        condition: service_started
+      wordpress1:
+        condition: service_started
+      wordpress2:
+        condition: service_started
     restart: unless-stopped
     
   basededonnees:
@@ -152,11 +154,8 @@ services:
     volumes:
       # or short syntax (yml array notation): - "<SRC>:<TARG>:ro" 
       - type: bind
-        source: ./Data/certbot/fullchain.pem
-        target: /etc/letsencrypt/live/domain.com/fullchain.pem
-      - type: bind
-        source: ./Data/certbot/privkey.pem
-        target: /etc/letsencrypt/live/domain.com/privkey.pem
+        source: ./Data/certbot/
+        target: /etc/letsencrypt/
     environment:
       # using object syntax (or array syntax "- <VAR>=<VALUE>")
       CERTBOT_NAME: grognon
