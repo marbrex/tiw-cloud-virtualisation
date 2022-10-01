@@ -874,3 +874,81 @@ wordpress2:
 
 > Added `PMA_ABSOLUTE_URI` variable in the environment of `myadmin` service in order to fix a false redirection after logging in to the *phpMyAdmin*
 
+LetsEncrypt
+---
+
+### Pre-requisites
+
+#### Sur la plateforme Openstack
+
+1) Create an application account on the OpenStack AND save the OPENRC file
+2) Share this OPENRC file with the docker
+
+#### Variables d'environnement pour le container docker
+
+- `CERTBOT_NAME`: grognon
+- `CERTBOT_DOMAIN`: cloudtiw.os.univ-lyon1.fr
+- `CERTBOT_MAIL`: eldar.kasmamytov@etu.univ-lyon1.fr
+- `CERTBOT_IP`: 192.168.246.47
+
+### Commandes
+
+#### Inside the **Image** (`RUN` directive in `Dockerfile`):
+
+##### Install Certbot
+
+```bash
+# via Snap
+snap install core
+snap refresh core
+snap install --classic certbot
+ln -s /snap/bin/certbot /usr/bin/certbot
+```
+
+```bash
+# .deb package with APT
+apt update
+apt -y install certbot
+```
+
+##### Install Openstack CLI
+
+**Only if** Ubuntu version below 22, add repo before installing:
+```bash
+apt -y install software-properties-common
+add-apt-repository -y cloud-archive:xena
+```
+
+Install:
+```bash
+apt -y install python3-openstackclient python3-designateclient python3-osc-placement
+```
+
+#### Container (`CMD` directive in `Dockerfile`):
+
+```bash
+# ========== Source OPENRC ==========
+# this file contains authentication credentials
+# for the Openstack platform.
+# needed to create a DNS record with openstack cli.
+source ~/app-cred-my-app-credential-openrc.sh
+
+# ========== Create a DNS record ==========
+openstack recordset create $CERTBOT_DOMAIN. --type A $CERTBOT_NAME --records $CERTBOT_IP
+
+# ========== Get script for auth-hook ==========
+wget https://documentation.univ-lyon1.fr/downloads/letsencrypt-designate
+chmod a+x $(pwd)/letsencrypt-designate
+
+# ========== Generate SSL/TLS Cert ==========
+certbot certonly \
+--server https://acme-staging-v02.api.letsencrypt.org/directory \
+-n -manual-public-ip-logging-ok \
+--manual \
+--preferred-challenges=dns \
+--agree-tos \
+--manual-auth-hook $(pwd)/letsencrypt-designate \
+-m eldar.kasmamytov@etu.univ-lyon1.fr \
+-d demoencrypt.doc.os.univ-lyon1.fr
+```
+
