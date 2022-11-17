@@ -1,0 +1,140 @@
+########################################
+########################################
+IP : 192.168.246.47 ID 11712650
+########################################
+########################################
+Recherche du fichier compose
+On test avec le nom '/home/ubuntu/compose/docker-compose.yml'
+La commande docker compose -f /home/ubuntu/compose/docker-compose.yml stop à générée la sortie d'erreur Container compose-nginx-1  Stopping
+ Container compose-wordpress_install-1  Stopping
+ Container compose-wordpress_install-1  Stopped
+ Container compose-nginx-1  Stopped
+ Container compose-myadmin-1  Stopping
+ Container compose-wordpress2-1  Stopping
+ Container compose-wordpress2-1  Stopped
+ Container compose-wordpress1-1  Stopping
+ Container compose-myadmin-1  Stopped
+ Container compose-wordpress1-1  Stopped
+ Container compose-basededonnees-1  Stopping
+ Container compose-basededonnees-1  Stopped
+
+Dockers trouvés :
+
+	"compose-nginx-1"
+	"compose-wordpress_install-1"
+	"compose-wordpress2-1"
+	"compose-myadmin-1"
+	"compose-wordpress1-1"
+	"compose-basededonnees-1"
+	"serv-madm"
+	"serv-bdd"
+	"serv-wordpress"
+	"serv-nginx"
+	"serv-mysql"
+[48;5;100m[1mOK[0m	Docker "serv-mysql" trouvé en position 10
+[48;5;100m[1mOK[0m	Le nom de l'image est bien "mysql:5.7.39"
+[48;5;100m[1mOK[0m	Docker "serv-bdd" trouvé en position 7
+[48;5;100m[1mOK[0m	Le nom de l'image est bien "mysql:8"
+[48;5;100m[1mOK[0m	Docker "serv-madm" trouvé en position 6
+[48;5;100m[1mOK[0m	Le nom de l'image est bien "phpmyadmin/phpmyadmin:latest"
+[48;5;100m[1mOK[0m	Docker "serv-nginx" trouvé en position 9
+[48;5;100m[1mOK[0m	Le nom de l'image est bien "nginx:latest"
+[48;5;100m[1mOK[0m	Docker "serv-wordpress" trouvé en position 8
+[48;5;100m[1mOK[0m	Le nom de l'image est bien "wordpress-perso"
+####################################
+## Vérification du docker serv-mysql ##
+####################################
+[48;5;100m[1mOK[0m	Le hostname du docker est bien test
+[48;5;100m[1mOK[0m	on trouve la variable d'env pour le password de root
+vérifie le partage de /home/ubuntu/docker/data/base sur /var/lib/mysql en mode RW True
+[48;5;100m[1mOK[0m	Le partage de données est trouvé
+[48;5;100m[1mOK[0m	On trouve la base A_BASE
+[48;5;100m[1mOK[0m	On trouve la base B_BASE
+####################################
+## Vérification du docker serv-bdd ##
+####################################
+[48;5;100m[1mOK[0m	Le hostname du docker est bien test
+Vérification des variables d'environement
+[48;5;100m[1mOK[0m	On trouve le mot de passe root
+[48;5;100m[1mOK[0m	On trouve l'utilisateur wordpress
+[48;5;100m[1mOK[0m	MdP de wordpress
+[48;5;100m[1mOK[0m	La base de donnée wordpress est là
+vérifie le partage de /home/ubuntu/docker/data/base8 sur /var/lib/mysql en mode RW True
+[48;5;100m[1mOK[0m	Le partage de données est trouvé
+[48;5;100m[1mOK[0m	On trouve la base wordpress
+[48;5;100m[1mOK[0m	/serv-bdd a bien l'adresse 172.18.10.100 dans le réseau resTP
+[48;5;100m[1mOK[0m	le docker /serv-bdd a bien l'alias bdd est dans le réseau resTP
+####################################
+## Vérification du docker serv-madm ##
+####################################
+Vérification des variables d'environement
+[48;5;100m[1mOK[0m	La base est bien configurée
+[48;5;100m[1mOK[0m	L'url d'accès est bonne pour nginx
+[48;5;100m[1mOK[0m	/serv-madm a bien l'adresse 172.18.10.101 dans le réseau resTP
+[48;5;100m[1mOK[0m	le docker /serv-madm a bien l'alias pma.tpcloud est dans le réseau resTP
+[48;5;100m[1mOK[0m	serv-madm semble répondre
+[48;5;100m[1mOK[0m	serv-madm semble être un docker phpMyAdmin
+[48;5;100m[1mOK[0m	le rootpath est bien /pma/
+####################################
+## Vérification du docker serv-nginx ##
+####################################
+[48;5;100m[1mOK[0m	/serv-nginx a bien l'adresse 172.18.10.105 dans le réseau resTP
+vérifie le partage de /home/ubuntu/nginx.conf sur /etc/nginx/nginx.conf en mode RW False
+[48;5;100m[1mOK[0m	Le partage de configuration est trouvé
+vérifie le partage de /home/ubuntu/nginx.conf sur /etc/nginx/nginx.conf en mode RW False
+vérifie le partage de /home/ubuntu/docker/data/nginx sur /www en mode RW True
+[48;5;100m[1mOK[0m	Le partage de site trouvé
+[48;5;196m[1m[5mNot OK[0m	serv-madm ne semple pas répondre via nginx
+[48;5;196m[1m[5mNot OK[0m	serv-madm ne semble pas être un docker phpMyAdmin
+#########################################
+## Vérification du docker serv-wordpress ##
+#########################################
+[48;5;100m[1mOK[0m	La base de données est connue
+[48;5;100m[1mOK[0m	Le serveur de base de données est configuré
+[48;5;100m[1mOK[0m	L'utilisateur de base de données est configuré
+vérifie le partage de /home/ubuntu/docker/php sur /var/www/html en mode RW True
+[48;5;100m[1mOK[0m	Le partage de fichiers de données est trouvé
+[48;5;100m[1mOK[0m	le docker /serv-wordpress a bien l'alias wordpress est dans le réseau resTP
+#########################################
+## Vérification des docker par sélenium ##
+#########################################
+[48;5;196m[1m[5mNot OK[0m	Le test du site wordpress a échoué avec le message WebDriverError: Reached error page: about:neterror?e=connectionFailure&u=http%3A//192.168.246.47/&c=UTF-8&d=Firefox%20can%E2%80%99t%20establish%20a%20connection%20to%20the%20server%20at%20192.168.246.47.
+    at Object.throwDecodedError (/usr/local/lib/node_modules/selenium-side-runner/node_modules/selenium-webdriver/lib/error.js:550:15)
+    at parseHttpResponse (/usr/local/lib/node_modules/selenium-side-runner/node_modules/selenium-webdriver/lib/http.js:560:13)
+    at Executor.execute (/usr/local/lib/node_modules/selenium-side-runner/node_modules/selenium-webdriver/lib/http.js:486:26)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+    at Driver.execute (/usr/local/lib/node_modules/selenium-side-runner/node_modules/selenium-webdriver/lib/webdriver.js:699:17)
+    at Object.<anonymous>.tests.Wordpress (/home/frico/Cours/Cloud/TP/TP2-Docker/Test/side-suite-testdocker/commons.js:4:3)
+    at Object.<anonymous> (/home/frico/Cours/Cloud/TP/TP2-Docker/Test/side-suite-testdocker/DefaultSuite.test.js:11:5)
+[48;5;196m[1m[5mNot OK[0m	Et ca compte 5 fois
+[48;5;196m[1m[5mNot OK[0m	Et ca compte 5 fois
+[48;5;196m[1m[5mNot OK[0m	Et ca compte 5 fois
+[48;5;196m[1m[5mNot OK[0m	Et ca compte 5 fois
+[48;5;196m[1m[5mNot OK[0m	L'authentification sur le site wordpress a échoué avec le message WebDriverError: Reached error page: about:neterror?e=connectionFailure&u=http%3A//192.168.246.47/&c=UTF-8&d=Firefox%20can%E2%80%99t%20establish%20a%20connection%20to%20the%20server%20at%20192.168.246.47.
+    at Object.throwDecodedError (/usr/local/lib/node_modules/selenium-side-runner/node_modules/selenium-webdriver/lib/error.js:550:15)
+    at parseHttpResponse (/usr/local/lib/node_modules/selenium-side-runner/node_modules/selenium-webdriver/lib/http.js:560:13)
+    at Executor.execute (/usr/local/lib/node_modules/selenium-side-runner/node_modules/selenium-webdriver/lib/http.js:486:26)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+    at Driver.execute (/usr/local/lib/node_modules/selenium-side-runner/node_modules/selenium-webdriver/lib/webdriver.js:699:17)
+    at Object.<anonymous>.tests.testlogin (/home/frico/Cours/Cloud/TP/TP2-Docker/Test/side-suite-testdocker/commons.js:23:3)
+    at Object.<anonymous> (/home/frico/Cours/Cloud/TP/TP2-Docker/Test/side-suite-testdocker/DefaultSuite.test.js:15:5)
+[48;5;196m[1m[5mNot OK[0m	Et ca compte 5 fois
+[48;5;196m[1m[5mNot OK[0m	Et ca compte 5 fois
+[48;5;196m[1m[5mNot OK[0m	Et ca compte 5 fois
+[48;5;196m[1m[5mNot OK[0m	Et ca compte 5 fois
+[48;5;196m[1m[5mNot OK[0m	Le test du site phpmyadmin a échoué avec le message WebDriverError: Reached error page: about:neterror?e=connectionFailure&u=http%3A//192.168.246.47/pma/&c=UTF-8&d=Firefox%20can%E2%80%99t%20establish%20a%20connection%20to%20the%20server%20at%20192.168.246.47.
+    at Object.throwDecodedError (/usr/local/lib/node_modules/selenium-side-runner/node_modules/selenium-webdriver/lib/error.js:550:15)
+    at parseHttpResponse (/usr/local/lib/node_modules/selenium-side-runner/node_modules/selenium-webdriver/lib/http.js:560:13)
+    at Executor.execute (/usr/local/lib/node_modules/selenium-side-runner/node_modules/selenium-webdriver/lib/http.js:486:26)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+    at Driver.execute (/usr/local/lib/node_modules/selenium-side-runner/node_modules/selenium-webdriver/lib/webdriver.js:699:17)
+    at Object.<anonymous>.tests.testpma (/home/frico/Cours/Cloud/TP/TP2-Docker/Test/side-suite-testdocker/commons.js:62:3)
+    at Object.<anonymous> (/home/frico/Cours/Cloud/TP/TP2-Docker/Test/side-suite-testdocker/DefaultSuite.test.js:19:5)
+[48;5;196m[1m[5mNot OK[0m	Et ca compte 5 fois
+[48;5;196m[1m[5mNot OK[0m	Et ca compte 5 fois
+[48;5;196m[1m[5mNot OK[0m	Et ca compte 5 fois
+[48;5;196m[1m[5mNot OK[0m	Et ca compte 5 fois
+Au final 39/56
+##Pourtomuss11712650 39
+##PourtomussMax11712650 39
+##Pourverif 192.168.246.47 39

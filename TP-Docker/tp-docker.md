@@ -1,6 +1,6 @@
 ---
-tags: [TP]
-aliases: ["Cloud TP1", "TP1 de Cloud", "TP1"]
+tags: [TP, Docker]
+aliases: ["CSV - TP1 sur Docker", "TP1 sur Docker - CSV"]
 ---
 
 # TP1 - Cloud & Virtualisation - Docker
