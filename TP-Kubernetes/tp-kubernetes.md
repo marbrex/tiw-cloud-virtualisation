@@ -95,7 +95,7 @@ nginx-deployment   3/3     3            3           3m27s   nginx        nginx  
 ```
 
 **Q:** Quels rôles jouent les labels et les sélecteurs ?  
-**R:** 
+**R:** Les *labels* sont des propriétés complémentaires qui n'impactent pas la déscription interne des objets et qui sont utiles aux utilisateurs. Les *selectors* peuvent être utilisés pour filtrer des objets par leur *labels*, par exemple pour conditionner la sélection de nœud dans la déscription des *Pods*.
 
 **Q:** Sur quelle image seront basés les conteneurs créés ?  
 **R:** Sur l'image `nginx`
@@ -117,12 +117,12 @@ Normal  ScalingReplicaSet  28s   deployment-controller  Scaled up replica set ng
 **R:** Après avoir executé la commande `kubectl get pods -o wide` pour afficher tous les pods, on constate qu'ils sont distribués à égalité. Les 3 premiers pods créés sont partagés entre les deux workers comme suit 2/1 et les 3 restants comme suit 1/2. Ainsi, chaque worker gère 3 pods.
 
 **Q:** Quel est l'intérêt de la section `selector` dans le fichier yaml ?  
-**R:** 
+**R:** Les *selectors* dans un *Deployment* sont utiles à gérer ses *Pods*. En effet, un *Deployment* filtre les *Pods* en fonction de leur libellés, donc les 2 libellés `.spec.selector` et `.spec.template.metadata.labels` doivent être les mêmes dans la déscription de ce *Deployment*. C'est utile par exemple pour maintenir un nombre de `replicas`.
 
 ### Création d'un Service
 
 **Q:** Que permet de faire un **Service** de type `NodePort` ?  
-**R:**
+**R:** Ce service permet de "bind" les ports internes/externes.
 
 **Q:** Détecter quel **port** est exposé sur les nœuds pour atteindre le service  
 **R:** La commande `kubectl get services -o wide` montre que les ports exposés sont `80:31857/TCP`
@@ -198,7 +198,7 @@ Pod Template:
 #### Création d'un Persistent Volume
 
 **Q:** Que signifie l'accès mode "ReadWriteOnce"?  
-**R:** 
+**R:** Il signifie que ce volume peut être monté par un seul nœud à la fois en mode "ReadWrite". Cependant, plusieurs *Pods* **dans le même nœud** peuvent quand même accéder ce volume en même temps.
 
 **Q:** Quel est le statut du PV après création ?  
 **R:** Le statut est `Available`, donc prêt à "claim".
@@ -217,7 +217,7 @@ Pod Template:
 Après avoir créé et appliqué un autre PVC, on voit qu'effectivement il n'est pas possible d'utiliser le même PV, puisque le statut du nouveau PVC est `Pending`.
 
 **Q:** Trouvez un moyen de vérifier que le volume persistent fonctionne correctement. Comment l'avez-vous vérifié ?  
-**R:** Etant donné le fait que le PV est de type `local`, le stockage alloué est sur un des nœuds *Worker* dans le chemin spécifié lors de la création du PV (`/mnt/data`). En listant le répértoire sur les nœuds *Worker* (avec `ls -la /mnt/data`), on voit qu'il est bien présent sur le nœud *Worker 1* et contient des fichiers, notamment les fichiers du container `mongodb` créé.
+**R:** Le stockage est alloué est sur un des nœuds *Worker* dans le chemin spécifié lors de la création du PV (`/mnt/data`). En listant le répértoire sur les nœuds *Worker* (avec `ls -la /mnt/data`), on voit qu'il est bien présent sur le nœud *Worker 1* et contient des fichiers, notamment les fichiers du container `mongodb` créé.
 
 ### Variables d'environnement
 
@@ -324,3 +324,228 @@ Kubernetes propose trois mécanismes: sondes de **Liveness**, **Readiness** e
 
 ## Un déploiement plus complexe
 
+### Service Redis
+
+#### Persistent Volume
+
+```yml
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: redis-pv
+spec:
+  capacity:
+    storage: 500Mi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/redis"
+```
+
+#### Persistent Volume Claim (redis-data)
+
+```yml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: redis-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 500Mi
+```
+
+#### Secret
+
+##### Encoder le mot de passe en *base64*
+
+```bash
+$ echo -n "redispassword" | base64
+cmVkaXNwYXNzd29yZA==
+```
+
+##### Description de l'objet
+
+```yml
+kind: Secret
+apiVersion: v1
+metadata:
+  name: redis-secret
+data:
+  password: cmVkaXNwYXNzd29yZA==
+```
+
+#### Deployment
+
+```yml
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: redis-deployment
+spec:
+  selector:
+    matchLabels:
+      app: redis
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      volumes:
+      - name: redis-config
+        emptyDir: {}
+      - name: redis-data
+        persistentVolumeClaim:
+          claimName: redis-pvc
+      containers:
+      - name: redis
+        image: redis
+        command: ["redis-server", "/etc/redis/redis.conf"]
+        volumeMounts:  
+        - mountPath: /etc/redis/  
+          name: redis-config
+        - mountPath: /data
+          name: redis-data
+        livenessProbe:
+          exec:
+            command: ["redis-cli", "ping"]
+      initContainers:
+      - name: redis-config-init
+        image: busybox
+        command: ["sh", "-c", "echo requirepass $PASSWORD > /etc/redis/redis.conf"]
+        volumeMounts:  
+        - mountPath: /etc/redis/
+          name: redis-config
+        env:
+        - name: PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis-secret
+              key: password
+```
+
+#### Service
+
+```yml
+kind: Service
+apiVersion: v1
+metadata:
+  name: redis-service
+spec:
+  type: ClusterIP
+  selector:
+    app: redis
+  ports:
+  - protocol: TCP
+    port: 6379
+    targetPort: 6379
+```
+
+### Service Counter
+
+#### Deployment
+
+```yml
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: counter-deployment
+spec:
+  selector:
+    matchLabels:
+      app: counter
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: counter
+    spec:
+      volumes:
+      - name: counter-app
+        emptyDir: {}
+      - name: redis-secret
+        secret:
+          secretName: redis-secret
+      containers:
+      - name: counter-app
+        image: vladost/php:7.2-apache-redis
+        env:
+        - name: REDIS_HOST
+          value: redis-service
+        volumeMounts:
+        - mountPath: /var/www/html
+          name: counter-app
+        - mountPath: /credentials
+          name: redis-secret
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+      initContainers:
+      - name: counter-app-init
+        image: busybox
+        command: ['wget', 'https://forge.univ-lyon1.fr/vladimir.ostapenco/counter-application/-/raw/main/index.php', '-O', '/var/www/html/index.php']
+        volumeMounts:  
+        - mountPath: /var/www/html
+          name: counter-app
+```
+
+#### Service
+
+```yml
+kind: Service
+apiVersion: v1
+metadata:
+  name: counter-service
+spec:
+  selector:
+    app: counter
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+```
+
+#### Ingress
+
+```yml
+kind: Ingress
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: counter-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /counter
+        pathType: Prefix
+        backend:
+          service:
+            name: counter-service
+            port:
+              number: 80
+```
+
+### Verification de l'application
+
+En passant par [mon URL de déploiement](http://kasmamytov.cloudtiw.os.univ-lyon1.fr/counter) dans le navigateur, j'obtiens le résultat suivant:
+
+```
+Starting application...  
+Counter service was successfully started...  
+----------------------------------------------  
+Service usage counter: **82**  
+Current service instance: **counter-deployment-7bb696c996-jjx76**  
+----------------------------------------------
+```
+
+- En ce moment, le compteur vaut 82.
+- Le nom de l'instance de service correspond bien au celui dans mon cluster (peut-être vérifié avec la commande `kubectl get pods -o wide`).
+
+**Q:** Surveillez la valeur du compteur, attendez une minute et mettez à jour la page. Que remarquez-vous ? Comment pouvez-vous l'expliquer ?  
+**R:** La valeur du compteur s'incrémente lors de chaque visite de la page. Mais cela s'applique 
