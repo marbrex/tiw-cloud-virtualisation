@@ -548,4 +548,5 @@ Current service instance: **counter-deployment-7bb696c996-jjx76**
 - Le nom de l'instance de service correspond bien au celui dans mon cluster (peut-être vérifié avec la commande `kubectl get pods -o wide`).
 
 **Q:** Surveillez la valeur du compteur, attendez une minute et mettez à jour la page. Que remarquez-vous ? Comment pouvez-vous l'expliquer ?  
-**R:** La valeur du compteur s'incrémente lors de chaque visite de la page. Mais cela s'applique 
+**R:** La valeur du compteur s'incrémente lors de chaque visite de la page. Mais cela ne s'applique qu'aux visites de l'utilisateur. Le fait que le compteur s'incrémente tout seul due aux sondes de liveness, qui sont faites chaque 10 secondes (comportement par défaut selon [la doc officielle](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes)). De ce fait, au bout d'une minute, le compteur augmentera de 6.
+
