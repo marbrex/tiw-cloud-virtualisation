@@ -5,6 +5,8 @@ aliases: ["CSV - TP3 sur Kubernetes", "TP3 sur Kubernetes - CSV"]
 
 # TP3 - Cloud & Virtualisation - Kubernetes
 
+> Eldar Kasmamytov, p1712650
+
 ## Déploiement du cluster
 ---
 
