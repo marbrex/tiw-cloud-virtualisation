@@ -3,6 +3,8 @@ tags: [TP, Kubernetes]
 aliases: ["CSV - TP3 sur Kubernetes", "TP3 sur Kubernetes - CSV"]
 ---
 
+# TP3 - Cloud & Virtualisation - Kubernetes
+
 ## Déploiement du cluster
 ---
 
@@ -282,4 +284,43 @@ Username: Lyon1
 ```
 
 ### Init containers
+
+**Q:** Sur quel nœud Worker le Pod a-t-il été lancé ?  
+**R:** Après avoir lancé `kubectl get pods -o wide`, on voit que le Pod a été démarré sur le nœud dont l'adresse IP est **192.168.246.20**, cela correspond au **Worker 2** dans mon cluster.
+
+**Q:** Que vous renvoie la commande `curl` ?  
+**R:** "Kubernetes"
+
+### Sondes de Liveness et Readiness
+
+Kubernetes propose trois mécanismes: sondes de **Liveness**, **Readiness** et **Startup**.
+
+#### Liveness probe
+
+**Q:** Que fait Kubernetes en cas d'échec de la Liveness probe ?  
+**R:** Le Pod a été automatiquement relancé par K8s, on peut le voir dans l'attribut RESTARTS (qui est devenu 1) affiché par la commande `kubectl get pods -o wide`.
+
+#### Readiness probe
+
+**Q:** Que remarquez-vous ?  
+**R:** Un des pods créés (`nginx-nogood`) a échoué à se lancer, son statut est `ErrImagePull`, ce qui est normal, puisque il n'existe pas d'image `nginx:1.222`.
+
+**Q:** La liste des endpoints du service. Que remarquez-vous ?  
+**R:** L'endpoint `nginx-readiness` a été créé avec l'adresse IP suivante `10.42.2.18:80`, ce qui correspond au Pod `nginx-good`.
+
+**Q:** Est-ce que le service répond aux requêtes ? Comment pouvez-vous expliquer un tel comportement ?  
+**R:** Oui, le service répond aux requêtes. Même si `nginx-nogood` n'est pas opérationnel, on a toujours un autre Pod fonctionnel exposé sur ce NodePort (`nginx-good`), c'est donc lui qui répond aux requêtes.
+
+**Q:** Trouvez et corrigez l'erreur. Que remarquez-vous ?  
+**R:** Après avoir corrigé la version du Pod, il a réussi à se démarrer. De plus, la commande `kubectl get endpoints` montre que ce Pod a été rajouté dans le service `nginx-readiness` (son adresse IP `10.42.1.20:80` est apparue dans l'attribut ENDPOINTS).
+
+### Création d'un Ingress
+
+**Q:** Quelles adresses se trouvent dans la colonne ADDRESS ?  
+**R:** C'est les adresses IP de mes nœuds *Worker* (`192.168.246.20,192.168.246.76`). 
+
+**Q:** Essayez d'accéder au **Service** en utilisant le nom DNS précédemment créé à parir de votre navigateur ou en executant la commande `curl`. Que pouvez-vous constater ?  
+**R:** `ping kasmamytov.cloudtiw.os.univ-lyon1.fr` reçoit bien des *pongs*. De plus, on peut vérifier que les deux nœuds sont enrégistrées avec ce nom de domaine via `host -a kasmamytov.cloudtiw.os.univ-lyon1.fr`.
+
+## Un déploiement plus complexe
 
