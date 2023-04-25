@@ -1,0 +1,18 @@
+{
+	"nodes":[
+		{"type":"group","id":"a3067c03c0e28ac1","x":-785,"y":-480,"width":925,"height":480,"color":"#326de6","label":"Kubernetes cluster"},
+		{"type":"group","id":"f93b526f930c3d1f","x":-400,"y":-400,"width":480,"height":340,"color":"5","label":"ReplicaSet"},
+		{"type":"group","id":"2f8c16df0fb33685","x":-358,"y":-325,"width":181,"height":220,"color":"6","label":"Pod"},
+		{"type":"group","id":"c5d0a81e057dcda9","x":-148,"y":-325,"width":181,"height":220,"color":"6","label":"Pod"},
+		{"type":"text","text":"**Container**","id":"9be1df2db8100b91","x":-338,"y":-305,"width":141,"height":50,"color":"#326de6"},
+		{"type":"text","text":"**Container**","id":"c963e7cdccce9c63","x":-128,"y":-305,"width":141,"height":50,"color":"#326de6"},
+		{"type":"text","text":"**Container**","id":"c4142b846dc48776","x":-338,"y":-245,"width":141,"height":50,"color":"#326de6"},
+		{"type":"text","text":"**...**","id":"e95aa39690d49225","x":-338,"y":-180,"width":141,"height":50,"color":"#326de6"},
+		{"type":"text","text":"**...**","id":"5b09bf27c3666856","x":-128,"y":-180,"width":141,"height":50,"color":"#326de6"},
+		{"type":"text","text":"### Deployment\n\nManages a set of replicas of a pod template.\n\n<div style=\"\n     border-radius: 5px;\n     border-style: dashed;\n     display: flex;\n     justify-content: center;\n     align-items: center;\n     font-size: 18px;\n     font-weight: bold;\n     padding: 10px 5px;\n     \">\n     Pod Template\n</div>","id":"182c320867caa126","x":-732,"y":-360,"width":220,"height":229,"color":"3"},
+		{"type":"text","text":"**Container**","id":"7601167ac22f7cb5","x":-128,"y":-245,"width":141,"height":50,"color":"#326de6"}
+	],
+	"edges":[
+		{"id":"3e3a94e42b80caa4","fromNode":"182c320867caa126","fromSide":"right","toNode":"f93b526f930c3d1f","toSide":"left"}
+	]
+}

@@ -90,6 +90,7 @@ Après avoir lancé une requête GET vers le Pod Nginx (port 8080) sur toutes le
 
 ### Création d'un Deployment
 
+![](../assets/kube-deployment.png)
 ```bash
 ubuntu@cvs-master-vm-eldar:~/rke/objects$ kubectl get deployments -o wide
 NAME               READY   UP-TO-DATE   AVAILABLE   AGE     CONTAINERS   IMAGES   SELECTOR
@@ -318,10 +319,11 @@ Kubernetes propose trois mécanismes: sondes de **Liveness**, **Readiness** e
 
 ### Création d'un Ingress
 
+![](../assets/kube-ingress-service.png)
 **Q:** Quelles adresses se trouvent dans la colonne ADDRESS ?  
 **R:** C'est les adresses IP de mes nœuds *Worker* (`192.168.246.20,192.168.246.76`). 
 
-**Q:** Essayez d'accéder au **Service** en utilisant le nom DNS précédemment créé à parir de votre navigateur ou en executant la commande `curl`. Que pouvez-vous constater ?  
+**Q:** Essayez d'accéder au **Service** en utilisant le nom DNS précédemment créé à partir de votre navigateur ou en executant la commande `curl`. Que pouvez-vous constater ?  
 **R:** `ping kasmamytov.cloudtiw.os.univ-lyon1.fr` reçoit bien des *pongs*. De plus, on peut vérifier que les deux nœuds sont enrégistrées avec ce nom de domaine via `host -a kasmamytov.cloudtiw.os.univ-lyon1.fr`.
 
 ## Un déploiement plus complexe
