@@ -2,7 +2,6 @@
 	"nodes":[
 		{"type":"group","id":"a3067c03c0e28ac1","x":-720,"y":-360,"width":720,"height":400,"color":"#326de6","label":"Kubernetes cluster"},
 		{"type":"text","text":"### Ingress\n\nRoutes incoming traffic to the appropriate Service.\n\nSingle entry point into the cluster.\n","id":"182c320867caa126","x":-680,"y":-271,"width":218,"height":223,"color":"1"},
-		{"type":"text","text":"<center>HTTP(S)</center>","id":"ee4755c816c0c2d2","x":-819,"y":-184,"width":108,"height":50},
 		{"type":"text","text":"### Service 2\n\nRedirects to the right Pod.","id":"2013b23c8eddfa04","x":-380,"y":-134,"width":160,"height":114,"color":"3"},
 		{"type":"text","text":"### Service 1\n\nRedirects to the right Pod.","id":"3398e0eb573c1ba0","x":-380,"y":-298,"width":160,"height":114,"color":"5"},
 		{"type":"text","text":"**Pod 1.1**","id":"c4142b846dc48776","x":-147,"y":-298,"width":114,"height":50,"color":"5"},
@@ -12,10 +11,10 @@
 		{"type":"text","text":"<center>🧑‍💻</center>  \n<center><strong>Client</strong></center>","id":"2655cd85ebc1c0ad","x":-961,"y":-204,"width":120,"height":89}
 	],
 	"edges":[
-		{"id":"578f3feee30da31b","fromNode":"2655cd85ebc1c0ad","fromSide":"right","toNode":"182c320867caa126","toSide":"left","color":"5"},
-		{"id":"aa8a661cd8d4b13b","fromNode":"182c320867caa126","fromSide":"right","toNode":"3398e0eb573c1ba0","toSide":"left","color":"5"},
+		{"id":"578f3feee30da31b","fromNode":"2655cd85ebc1c0ad","fromSide":"right","toNode":"182c320867caa126","toSide":"left","color":"5","label":"HTTP(S)"},
 		{"id":"6403256e588fbf4f","fromNode":"3398e0eb573c1ba0","fromSide":"right","toNode":"c4142b846dc48776","toSide":"left","color":"5"},
 		{"id":"a0581b7c9959aa20","fromNode":"182c320867caa126","fromSide":"right","toNode":"2013b23c8eddfa04","toSide":"left"},
-		{"id":"ffa03cdbf7e39cd3","fromNode":"2013b23c8eddfa04","fromSide":"right","toNode":"4abd0ff47aa23688","toSide":"left"}
+		{"id":"ffa03cdbf7e39cd3","fromNode":"2013b23c8eddfa04","fromSide":"right","toNode":"4abd0ff47aa23688","toSide":"left"},
+		{"id":"b37929b92f9a35c9","fromNode":"182c320867caa126","fromSide":"right","toNode":"3398e0eb573c1ba0","toSide":"left","color":"5"}
 	]
 }
